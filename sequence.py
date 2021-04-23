@@ -17,7 +17,6 @@ def get_number(text):
     """
     Return the number at the start of text, as a string.
 
-    Keyword arguments:
     text -- string starting with a number
     """
     char = 0
@@ -35,7 +34,10 @@ def make_output(text, match_indexes, numbers, iterations):
     """
     Create text to write to file from parameters.
 
-
+    text          -- text of file, including incrementer instructions
+    match_indexes -- indexes of instruction matches in 'text'
+    numbers       -- incrementer starting numbers
+    iterations    -- number of repetitions of the adjusted text
     """
     # find start and stop indices of text parts to be kept
     piece_start_end = [0]
@@ -56,8 +58,8 @@ def make_output(text, match_indexes, numbers, iterations):
     return output
 
 
+# get text
 input_file_name = "input.txt"
-
 if not os.path.isfile(input_file_name):
     print("Input file doesn't exist. Create file 'input.txt' "
           "to take text from, output will be 'output.txt'.")
@@ -66,7 +68,6 @@ else:
         input_text = input_file.read()
 
 # read iteration instruction from text if there, then remove it from text
-
 iteration_matches = re.finditer(ITERATIONS_SYNTAX_START, input_text)
 
 iterations = DEFAULT_ITERATIONS
@@ -78,8 +79,7 @@ for match in iteration_matches:
     input_text = input_text.replace(
         ITERATIONS_SYNTAX_START + iterations_string + SYNTAX_END + "\n", "")
 
-# find any incrementers
-
+# find any incrementers in the text file
 matches = re.finditer(INCREMENTER_SYNTAX_START, input_text)
 
 start_values = []
@@ -93,13 +93,12 @@ for match in match_indexes:
     start_values.append(
         get_number(input_text[match_end:match_end + MAX_CHARS]))
 
-# make output text
+# make output text and write
 if len(start_values):
     output_text = make_output(input_text, match_indexes,
                               start_values, iterations)
 else:
     output_text = input_text * iterations
 
-# print(output_text)
 with open(OUTPUT_FILE, 'w+') as output_file:
     output_file.write(output_text)
