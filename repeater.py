@@ -10,7 +10,7 @@ ITERATIONS_SYNTAX_START = "{repeat_times_"
 INCREMENTER_SYNTAX_START = "{increment_from_"
 SYNTAX_END = "}"
 INPUT_FILE = "input.txt"
-OUTPUT_FILE = "output_sequence.txt"
+OUTPUT_FILE = "output.txt"
 
 
 def get_number(text):
@@ -93,7 +93,7 @@ for match in match_indexes:
     start_values.append(
         get_number(input_text[match_end:match_end + MAX_CHARS]))
 
-# make output text and write
+# make output text and write it to output file
 if len(start_values):
     output_text = make_output(input_text, match_indexes,
                               start_values, iterations)
