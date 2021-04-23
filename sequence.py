@@ -6,6 +6,10 @@ import re
 MAX_CHARS = 10
 MAX_ITERATION_CHARS = 3
 DEFAULT_ITERATIONS = 10
+ITERATIONS_SYNTAX_START = "{repeat_times_"
+INCREMENTER_SYNTAX_START = "{increment_from_"
+SYNTAX_END = "}"
+
 print()
 
 
@@ -28,6 +32,16 @@ def get_number(text):
     return number
 
 
+def make_output(text, indexes, numbers, iterations):
+    """
+    Create text to write to file from parameters.
+
+
+    """
+
+    return "placeholder"
+
+
 input_file_name = "input.txt"
 # full incrementer syntax is {increment_from_X}
 # where X is an n <= MAX_CHARS - character number
@@ -39,19 +53,18 @@ else:
     with open('input.txt', 'r') as input_file:
         input_text = input_file.read()
 
-iterations_syntax_start = "{repeat_times_"
-incrementer_syntax_start = "{increment_from_"
-
-indexes = re.finditer(iterations_syntax_start, input_text)
-
+iteration_indexes = re.finditer(ITERATIONS_SYNTAX_START, input_text)
 
 iterations = DEFAULT_ITERATIONS
-for index in indexes:
+for index in iteration_indexes:
     match_end = index.span()[1]
-    iterations = get_number(
+    iterations_string = get_number(
         input_text[match_end:match_end + MAX_ITERATION_CHARS])
+    iterations = int(iterations_string)
+    input_text = input_text.replace(
+        ITERATIONS_SYNTAX_START + iterations_string + SYNTAX_END + "\n", "")
 
-indexes = re.finditer(incrementer_syntax_start, input_text)
+indexes = re.finditer(INCREMENTER_SYNTAX_START, input_text)
 
 start_values = []
 
@@ -63,8 +76,11 @@ for index in indexes:
 # cut main string into list of strings, using the indexes
 # (calculate from that and numbers string list for end of token
 
-for iteration in range(iterations):
-    for index in indexes:
-        span
 
+if len(start_values):
+    output_text = make_output(input_text, indexes, start_values, iterations)
+else:
+    output_text = input_text * iterations
+
+print(output_text)
 # create string from cut up main string + list of numbers to int
