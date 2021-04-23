@@ -38,7 +38,15 @@ def make_output(text, indexes, numbers, iterations):
 
 
     """
-
+    output = ""
+    piece_start_end = [0]
+    for index in indexes:
+        print(index.span())
+        piece_start_end.append(index.span()[0:1])
+    text_pieces = []
+    numbers = [int(n) for n in numbers]
+    for iteration in range(iterations):
+        output += ""
     return "placeholder"
 
 
@@ -53,32 +61,32 @@ else:
     with open('input.txt', 'r') as input_file:
         input_text = input_file.read()
 
-iteration_indexes = re.finditer(ITERATIONS_SYNTAX_START, input_text)
+iteration_matches = re.finditer(ITERATIONS_SYNTAX_START, input_text)
 
 iterations = DEFAULT_ITERATIONS
-for index in iteration_indexes:
-    match_end = index.span()[1]
+for match in iteration_matches:
+    match_end = match.span()[1]
     iterations_string = get_number(
         input_text[match_end:match_end + MAX_ITERATION_CHARS])
     iterations = int(iterations_string)
     input_text = input_text.replace(
         ITERATIONS_SYNTAX_START + iterations_string + SYNTAX_END + "\n", "")
 
-indexes = re.finditer(INCREMENTER_SYNTAX_START, input_text)
+matches = re.finditer(INCREMENTER_SYNTAX_START, input_text)
 
 start_values = []
 
-for index in indexes:
-    match_end = index.span()[1]
+for match in matches:
+    match_end = match.span()[1]
     start_values.append(
         get_number(input_text[match_end:match_end + MAX_CHARS]))
 
-# cut main string into list of strings, using the indexes
+# cut main string into list of strings, using the matches
 # (calculate from that and numbers string list for end of token
 
 
 if len(start_values):
-    output_text = make_output(input_text, indexes, start_values, iterations)
+    output_text = make_output(input_text, matches, start_values, iterations)
 else:
     output_text = input_text * iterations
 
