@@ -9,11 +9,10 @@ DEFAULT_ITERATIONS = 10
 ITERATIONS_SYNTAX_START = "{repeat_times_"
 INCREMENTER_SYNTAX_START = "{increment_from_"
 SYNTAX_END = "}"
+INPUT_FILE = "input.txt"
+OUTPUT_FILE = "output_sequence.txt"
 
-print()
 
-
-# string is expected to be in the format nn}xx or -nn}x. can have minus sign
 def get_number(text):
     """
     Return the number at the start of text, as a string.
@@ -32,34 +31,41 @@ def get_number(text):
     return number
 
 
-def make_output(text, indexes, numbers, iterations):
+def make_output(text, match_indexes, numbers, iterations):
     """
     Create text to write to file from parameters.
 
 
     """
-    output = ""
+    # find start and stop indices of text parts to be kept
     piece_start_end = [0]
-    for index in indexes:
-        print(index.span())
-        piece_start_end.append(index.span()[0:1])
+    for (match, number) in zip(match_indexes, numbers):
+        piece_start_end.append(match[0])
+        piece_start_end.append(match[1] + len(number) + len(SYNTAX_END))
+    piece_start_end.append(len(text) - 1)
+    # get text parts to be kept
     text_pieces = []
-    numbers = [int(n) for n in numbers]
+    for n in range(0, len(numbers)*2 + 1, 2):
+        text_pieces.append(text[piece_start_end[n]:piece_start_end[n+1]])
+    # get output
+    output = ""
     for iteration in range(iterations):
-        output += ""
-    return "placeholder"
+        for (text_piece, number) in zip(text_pieces, numbers):
+            output += text_piece + str(int(number) + iteration)
+        output += text_pieces[-1] + "\n"
+    return output
 
 
 input_file_name = "input.txt"
-# full incrementer syntax is {increment_from_X}
-# where X is an n <= MAX_CHARS - character number
 
 if not os.path.isfile(input_file_name):
     print("Input file doesn't exist. Create file 'input.txt' "
           "to take text from, output will be 'output.txt'.")
 else:
-    with open('input.txt', 'r') as input_file:
+    with open(INPUT_FILE, 'r') as input_file:
         input_text = input_file.read()
+
+# read iteration instruction from text if there, then remove it from text
 
 iteration_matches = re.finditer(ITERATIONS_SYNTAX_START, input_text)
 
@@ -72,23 +78,28 @@ for match in iteration_matches:
     input_text = input_text.replace(
         ITERATIONS_SYNTAX_START + iterations_string + SYNTAX_END + "\n", "")
 
+# find any incrementers
+
 matches = re.finditer(INCREMENTER_SYNTAX_START, input_text)
 
 start_values = []
+match_indexes = []
 
 for match in matches:
-    match_end = match.span()[1]
+    match_indexes.append(match.span())
+
+for match in match_indexes:
+    match_end = match[1]
     start_values.append(
         get_number(input_text[match_end:match_end + MAX_CHARS]))
 
-# cut main string into list of strings, using the matches
-# (calculate from that and numbers string list for end of token
-
-
+# make output text
 if len(start_values):
-    output_text = make_output(input_text, matches, start_values, iterations)
+    output_text = make_output(input_text, match_indexes,
+                              start_values, iterations)
 else:
     output_text = input_text * iterations
 
-print(output_text)
-# create string from cut up main string + list of numbers to int
+# print(output_text)
+with open(OUTPUT_FILE, 'w+') as output_file:
+    output_file.write(output_text)
